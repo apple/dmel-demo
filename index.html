@@ -1,0 +1,257 @@
+<!-- For licensing see accompanying LICENSE file. Copyright (C) 2025 Apple Inc. All Rights Reserved. -->
+
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="Brief description goes here">
+
+        <title>dMel: Speech Tokenization Made Simple</title>
+
+        <link rel="icon" href="./assets/favicon.png" type="image/png">
+        <link rel="stylesheet" href="./assets/style.css">
+    </head>
+
+    <body>
+        <header>
+            <div class="container fade-in">
+                <h1>dMel: Speech Tokenization Made Simple</h1>
+                <nav>
+                    <ul class="links">
+                        <li>
+                            <img src="./assets/apple-icon.svg" />
+                            <a href="https://machinelearning.apple.com/research/speech-tokenization-made-simple" target="_blank">Paper</a>
+                        </li>
+                        <li>
+                            <img src="./assets/arxiv-icon.svg" />
+                            <a href="https://arxiv.org/abs/2407.15835" target="_blank">arXiv</a>
+                        </li>
+                        <li>
+                            <img src="./assets/github-icon.svg" />
+                            <a href="" target="_blank">Code</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <section class="sub-header fade-in">
+            <div class="container">
+                <nav>
+                    <ul class="links">
+                        <li><a href="https://richardbaihe.github.io" target="_blank">Richard He Bai*</a></li>
+                        <li><a href="https://github.com/tlikhomanenko/tlikhomanenko" target="_blank">Tatiana Likhomanenko*</a></li>
+                        <li><a href="https://openreview.net/profile?id=~Ruixiang_ZHANG1" target="_blank">Ruixiang Zhang</a></li>
+                        <li><a href="https://openreview.net/profile?id=~Zijin_Gu1" target="_blank">Zijin Gu</a></li>
+                        <li><a href="https://openreview.net/profile?id=~Zakaria_Aldeneh1" target="_blank">Zakaria Aldeneh</a></li>
+                        <li><a href="https://openreview.net/profile?id=~Navdeep_Jaitly1" target="_blank">Navdeep Jaitly</a></li>
+                    </ul>
+                </nav>
+                <div>
+                    <p>Apple</p>
+                    <p>* equal contribution</p>
+                </div>
+            </div>
+        </section>
+
+        <main>
+            <div class="container fade-in">
+                <h2><a href="#abstract" id="abstract">Abstract</a></h2>
+                <p>
+                    Large language models have revolutionized natural language processing by leveraging self-supervised pretraining on vast textual data. Inspired by this success, researchers have investigated complex speech tokenization methods to discretize continuous speech signals, enabling the application of language modeling techniques to speech data. However, existing approaches face a fundamental tradeoff: they either model semantic (content) tokens, potentially losing critical acoustic information, or model acoustic tokens, risking the loss of semantic information. <b>Although recent work (e.g. SpeechTokenizer, MiMi) shows combining tokens via distillation can balance both semantic and acoustic, model-based tokenizers not only complicate the system, but also face out-of-domain generalization issues (see Figure 2).</b>
+                </p>
+                <p>
+                    Here we demonstrate that discretizing mel-filterbank channels into discrete intensity bins produces a simple representation (dMel) that outperforms existing speech tokenization methods for speech reconstruction, particularly for out-of-domain audio. 
+                    <b> We then propose an LM-style transformer architecture for speech-text modeling, introducing two novel models: RichTTS for text-to-speech synthesis and RichASR for automatic speech recognition. The key innovation in our approach is the parallel encoding and decoding of speech token channels, replacing the conventional autoregressive plus non-autoregressive (AR+NAR) cascaded method. </b>
+                </p>
+                <p>
+                    We comprehensively evaluate various speech tokenization methods across three critical tasks: speech reconstruction, speech recognition, and speech synthesis. Our results demonstrate that dMel achieves superior performance while employing a significantly simplified architecture, thereby establishing a foundation for efficient and effective joint modeling of speech and text.
+                </p>
+                    <img src="./assets/dmel.002.png" style="width: 800px; height: auto; display: block; margin: 0 auto;"/>
+                    <p style="text-align: center;">
+                        Figure 1. dMel tokenization and detokenization process.
+                    </p>
+                </p>
+            </div>
+
+            <div class="container fade-in">
+                <h2><a href="#reconstruction-samples" id="reconstruction-samples">Reconstruction Results</a></h2>
+                <p>
+                We show the reconstructed audio from different tokenizers under different noise conditions. The reconstructed audio samples are also evaluated by an ASR model to show the effectiveness of different tokenizers in preserving the speech content.
+                </p>
+                    </p>
+                    <img src="./assets/reconstruction_results.png" style="width: 600px; height: auto; display: block; margin: 0 auto;"/>
+                    <p style="text-align: center;">
+                        Figure 2. Comparison of the content preservation of different tokenizers under different noise conditions.
+                    </p>
+                </p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Audio type</th>
+                                <th>No noise (clean speech)</th>
+                                <th>Music noise (speech with music background)</th>
+                                <th>Speech noise (speech with speech background)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                              <td style="text-align: left;vertical-align:middle;width: 200px"> Ground Truth</td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_clean/gt_test-clean-8463-294825-0003.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_music_noise/gt_test-clean-8463-294825-0003_music.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_speech_noise/gt_test-clean-8463-294825-0003_260.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                            </tr>
+                            <tr>
+                              <td style="text-align: left;vertical-align:middle;width: 200px"> <a href="https://github.com/facebookresearch/fairseq/tree/main/examples/textless_nlp/gslm/unit2speech">GSLM-HuBERT-KM200</a></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_clean/hubert_test-clean-8463-294825-0003.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_music_noise/hubert_test-clean-8463-294825-0003_music.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_speech_noise/hubert_test-clean-8463-294825-0003_260.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                            </tr>
+                            <tr>
+                              <td style="text-align: left;vertical-align:middle;width: 200px"> <a href="https://huggingface.co/fnlp/SpeechTokenizer">SpeechTokenizer</a></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_clean/speechtokenizer_test-clean-8463-294825-0003.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_music_noise/speechtokenizer_test-clean-8463-294825-0003_music.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_speech_noise/speechtokenizer_test-clean-8463-294825-0003_260.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                            </tr>
+                            <tr>
+                              <td style="text-align: left;vertical-align:middle;width: 200px"> <a
+                                href="https://huggingface.co/facebook/encodec_24khz">Encodec</a></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_clean/encodec_test-clean-8463-294825-0003.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_music_noise/encodec_test-clean-8463-294825-0003_music.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_speech_noise/encodec_test-clean-8463-294825-0003_260.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                            </tr>
+                            <tr>
+                              <td style="text-align: left;vertical-align:middle;width: 200px"> <a
+                                href="https://huggingface.co/kyutai/mimi">MiMi</a></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_clean/mimi_test-clean-8463-294825-0003.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_music_noise/mimi_test-clean-8463-294825-0003_music.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_speech_noise/mimi_test-clean-8463-294825-0003_260.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                            </tr>
+                            <tr>
+                              <td style="text-align: left;vertical-align:middle;width: 200px"> Mel (<a
+                                href="https://huggingface.co/nvidia/bigvgan_24khz_100band">LibriTTS Vocoder</a>)</td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_clean/mel_bigvgan_test-clean-8463-294825-0003.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_music_noise/mel_bigvgan_test-clean-8463-294825-0003_music.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_speech_noise/mel_bigvgan_test-clean-8463-294825-0003_260.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                            </tr>
+                            <tr>
+                              <td style="text-align: left;vertical-align:middle;width: 200px"> dMel (<a
+                                href="https://huggingface.co/nvidia/bigvgan_24khz_100band">LibriTTS Vocoder</a>)</td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_clean/dmel_bigvgan_test-clean-8463-294825-0003.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_music_noise/dmel_bigvgan_test-clean-8463-294825-0003_music.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/reconstruction_speech_noise/dmel_bigvgan_test-clean-8463-294825-0003_260.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p style="text-align: center;">
+                    Table 1: Audio reconstruction using different speech tokenization methods with different type of audio inputs.
+                </p>
+                <p>
+                    <b>TLDR;</b> Tokenization compresses data before you know what you want to do with it later. The manifold of the compressed codes can be quite curved: i) Downstream models may go off the manifold in weird ways; ii) Tokenization may not work for out-of-domain settings. Mel and dMel in contrary work well in both in-domain and out-of-domain settings.
+                </p>
+            </div>
+
+            <div class="container fade-in">
+                <h2><a href="#richtts-samples" id="richtts-samples">RichTTS Results</a></h2>
+                <p>
+                    <p>
+                    Modeling speech and text sequences jointly is essential for a model to understand and generate both modalities. 
+                    In this work, we apply a unified LM-style transformer model that takes speech and text tokens as input and generates the output tokens in the target modality, by proposing RichTTS and RichASR. 
+                    Here we show RichTTS architecture and generation samples for illustration.
+                    </p>
+                    <img src="./assets/richtts.png" style="width: 500px; height: auto; display: block; margin: 0 auto;" />
+                    <p style="text-align: center;">
+                        Figure 3. RichTTS, a decoder only LM style TTS model.
+                    </p>
+                </p>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>dMel</th>
+                                <th>GSLM-HuBERT-KM</th>
+                                <th>SpeechTokenizer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                              <td style="text-align: left;vertical-align:middle;width: 300px"> test-clean-121-127105-0000l</td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/normal_length_generation/RichTTS+dmel/test-clean-121-127105-0000.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/normal_length_generation/RichTTS+hubert/test-clean-121-127105-0000.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/normal_length_generation/RichTTS+speech_token/test-clean-121-127105-0000.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+              
+                            </tr>
+                            <tr>
+                              <td style="text-align: left;vertical-align:middle;width: 300px"> test-clean-1995-1837-0001</td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/normal_length_generation/RichTTS+dmel/test-clean-1995-1837-0001.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/normal_length_generation/RichTTS+hubert/test-clean-1995-1837-0001.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/normal_length_generation/RichTTS+speech_token/test-clean-1995-1837-0001.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                            </tr>
+                            <tr>
+                              <td style="text-align: left;vertical-align:middle;width: 300px"> test-clean-3729-6852-0038</td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/normal_length_generation/RichTTS+dmel/test-clean-3729-6852-0038.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/normal_length_generation/RichTTS+hubert/test-clean-3729-6852-0038.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/normal_length_generation/RichTTS+speech_token/test-clean-3729-6852-0038.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                            </tr>
+                            <tr>
+                              <td style="text-align: left;vertical-align:middle;width: 300px"> test-clean-4077-13751-0021</td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/normal_length_generation/RichTTS+dmel/test-clean-4077-13751-0021.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/normal_length_generation/RichTTS+hubert/test-clean-4077-13751-0021.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/normal_length_generation/RichTTS+speech_token/test-clean-4077-13751-0021.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                            </tr>
+                            <tr>
+                              <td style="text-align: left;vertical-align:middle;width: 300px"> test-clean-4507-16021-0020 </td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/longform_audios/RichTTS+dmel/test-clean-4507-16021-0020.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/longform_audios/RichTTS+hubert/test-clean-4507-16021-0020.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/longform_audios/RichTTS+speech_token/test-clean-4507-16021-0020.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+              
+                            </tr>
+                            <tr>
+                              <td style="text-align: left;vertical-align:middle;width: 300px"> test-clean-7127-75947-0009</td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/longform_audios/RichTTS+dmel/test-clean-7127-75947-0009.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/longform_audios/RichTTS+hubert/test-clean-7127-75947-0009.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                              <td style="text-align: center"><audio controls="controls" style="width: 150px;"><source src="samples/audio/longform_audios/RichTTS+speech_token/test-clean-7127-75947-0009.wav" type="audio/mpeg">Your browser does not support the audio element.</audio></td>
+                            </tr>
+                          </tbody>
+                    </table>
+                </div>
+                <p style="text-align: center;">
+                    Table 2: The first 3 rows are <b>normal length generation</b> while the last 3 rows are <b>longform generation</b>.
+                </p>
+                <p>
+                    <b>TLDR;</b> dMel is effective: decoder-only model trained with dMel achieves high performance on TTS task, including longform speech generation.
+                </p>
+            </div>
+
+            <div class="container fade-in">
+                <h2><a href="#bibtex" id="bibtex">BibTeX</a></h2>
+                <pre><code>
+                    @article{bai2024dmel,
+                        title={dmel: Speech tokenization made simple},
+                        author={Bai, He and Likhomanenko, Tatiana and Zhang, Ruixiang and Gu, Zijin and Aldeneh, Zakaria and Jaitly, Navdeep},
+                        journal={arXiv preprint arXiv:2407.15835},
+                        year={2024}
+                    }
+                </code></pre>
+            </div>
+        </main>
+
+        <footer>
+            <div class="container">
+                <copy>
+                    <p> All generated speech samples provided here are licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License</a>. </p>
+                    
+                    <p> Copyright © <span class="footer-year"></span> Apple Inc. All rights reserved. </p>
+                </copy>
+            </div>
+        </footer>
+
+        <script src="./assets/script.js" defer></script>
+    </body>
+</html>
